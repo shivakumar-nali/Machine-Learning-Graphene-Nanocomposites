@@ -1,0 +1,13 @@
+﻿# Fe-Ag alloy potential (Lennard-Jones for demonstration)
+# Note: For real simulations, use a proper EAM potential
+
+# Pair coefficients for Fe-Fe, Ag-Ag, Fe-Ag interactions
+
+# Fe-Fe interaction (approximate)
+pair_coeff 1 1 0.1 2.5
+
+# Ag-Ag interaction (approximate)  
+pair_coeff 2 2 0.15 2.8
+
+# Fe-Ag cross interaction (approximate)
+pair_coeff 1 2 0.125 2.65

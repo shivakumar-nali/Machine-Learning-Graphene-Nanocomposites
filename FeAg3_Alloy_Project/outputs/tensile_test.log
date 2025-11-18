@@ -1,0 +1,184 @@
+LAMMPS (7 Feb 2024 - Update 1)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+# FeAg3 Uniaxial Tensile Test - Corrected
+
+# Initialize
+units metal
+dimension 3
+boundary p p p
+atom_style atomic
+
+# Read clean structure
+read_data /mnt/c/Users/danie/feag3_Mechanical_Properties/inputs/feag3_clean.lmp
+Reading data file ...
+  triclinic box = (0 0 0) to (5.7770462 5.7770462 4.639666) with tilt (0 0 0)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  8 atoms
+  read_data CPU = 0.015 seconds
+
+# Potential setup
+pair_style lj/cut 5.0
+pair_coeff * * 0.125 2.65
+
+# Neighbor settings
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+# Energy minimization first
+min_style cg
+minimize 1.0e-10 1.0e-10 1000 10000
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 7
+  ghost atom cutoff = 7
+  binsize = 3.5, bins = 2 2 2
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton/tri
+      stencil: half/bin/3d/tri
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 4.085 | 4.085 | 4.085 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   0              2.641748e+09   0              2.641748e+09   1.0933897e+14
+        22   0             -6.5763675      0             -6.5763675     -17992.193    
+Loop time of 0.000510046 on 1 procs for 22 steps with 8 atoms
+
+55.5% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+      2641748021.28237  -6.57636751383588  -6.57636751383588
+  Force two-norm initial, final = 2.8487766e+10 0.58572458
+  Force max component initial, final = 7.8622973e+09 0.14879358
+  Final line search alpha, max atom move = 2.0029307e-08 2.9802322e-09
+  Iterations, force evaluations = 22 77
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00015752 | 0.00015752 | 0.00015752 |   0.0 | 30.88
+Neigh   | 6.6074e-05 | 6.6074e-05 | 6.6074e-05 |   0.0 | 12.95
+Comm    | 0.00019613 | 0.00019613 | 0.00019613 |   0.0 | 38.45
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 9.032e-05  |            |       | 17.71
+
+Nlocal:              8 ave           8 max           8 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:            328 ave         328 max         328 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:            272 ave         272 max         272 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 272
+Ave neighs/atom = 34
+Neighbor list builds = 2
+Dangerous builds = 0
+
+# Compute stress and strain
+compute stress all stress/atom NULL
+variable strain_xx equal (lx/5.77704618-1.0)
+variable stress_xx equal (-pxx/10000)
+
+# Thermo settings for tensile test
+thermo 100
+thermo_style custom step v_strain_xx v_stress_xx pe press vol
+
+# Temperature initialization
+velocity all create 300.0 12345 dist gaussian
+timestep 0.001
+
+# NVT equilibration before tensile test
+fix nvt all nvt temp 300 300 0.1
+run 500
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.71 | 3.71 | 3.71 Mbytes
+   Step      v_strain_xx    v_stress_xx       PotEng         Press          Volume    
+        22   0              0.67582421    -6.5763675     -16119.767      154.84543    
+       100   0             -0.067121654   -6.3610018     -11155.164      154.84543    
+       200   0              0.40485303    -6.4265464     -8567.9314      154.84543    
+       300   0             -0.89105415    -6.2562389      2831.12        154.84543    
+       400   0             -0.73096901    -6.2955437     -2930.6466      154.84543    
+       500   0              0.16190469    -6.4553768     -14338.217      154.84543    
+       522   0              0.17317181    -6.4147145     -11699.935      154.84543    
+Loop time of 0.00185349 on 1 procs for 500 steps with 8 atoms
+
+Performance: 23307.395 ns/day, 0.001 hours/ns, 269761.515 timesteps/s, 2.158 Matom-step/s
+92.4% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00066807 | 0.00066807 | 0.00066807 |   0.0 | 36.04
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.0005446  | 0.0005446  | 0.0005446  |   0.0 | 29.38
+Output  | 0.00022705 | 0.00022705 | 0.00022705 |   0.0 | 12.25
+Modify  | 0.00028502 | 0.00028502 | 0.00028502 |   0.0 | 15.38
+Other   |            | 0.0001287  |            |       |  6.95
+
+Nlocal:              8 ave           8 max           8 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:            328 ave         328 max         328 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:            280 ave         280 max         280 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 280
+Ave neighs/atom = 35
+Neighbor list builds = 0
+Dangerous builds = 0
+unfix nvt
+
+# Tensile deformation in x-direction
+fix deform all deform 1 x erate 0.0001 remap x
+
+# Run tensile test
+run 1000
+WARNING: No fixes with time integration, atoms won't move (src/verlet.cpp:60)
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.71 | 3.71 | 3.71 Mbytes
+   Step      v_strain_xx    v_stress_xx       PotEng         Press          Volume    
+       522   0              0.17317181    -6.4147145     -11699.935      154.84543    
+       600   7.8e-06        0.17412217    -6.4147122     -11703.71       154.84664    
+       700   1.78e-05       0.17535622    -6.4147093     -11708.613      154.84819    
+       800   2.78e-05       0.17659004    -6.4147063     -11713.516      154.84974    
+       900   3.78e-05       0.17782364    -6.4147034     -11718.417      154.85128    
+      1000   4.78e-05       0.17905702    -6.4147004     -11723.318      154.85283    
+      1100   5.78e-05       0.18029018    -6.4146974     -11728.218      154.85438    
+      1200   6.78e-05       0.18152311    -6.4146944     -11733.117      154.85593    
+      1300   7.78e-05       0.18275582    -6.4146914     -11738.015      154.85748    
+      1400   8.78e-05       0.1839883     -6.4146884     -11742.913      154.85903    
+      1500   9.78e-05       0.18522057    -6.4146854     -11747.81       154.86058    
+      1522   0.0001         0.18549163    -6.4146847     -11748.887      154.86092    
+Loop time of 0.0037905 on 1 procs for 1000 steps with 8 atoms
+
+Performance: 22793.809 ns/day, 0.001 hours/ns, 263817.230 timesteps/s, 2.111 Matom-step/s
+92.4% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0013808  | 0.0013808  | 0.0013808  |   0.0 | 36.43
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.0013432  | 0.0013432  | 0.0013432  |   0.0 | 35.43
+Output  | 0.00042952 | 0.00042952 | 0.00042952 |   0.0 | 11.33
+Modify  | 0.00025887 | 0.00025887 | 0.00025887 |   0.0 |  6.83
+Other   |            | 0.0003782  |            |       |  9.98
+
+Nlocal:              8 ave           8 max           8 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:            372 ave         372 max         372 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:            281 ave         281 max         281 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 281
+Ave neighs/atom = 35.125
+Neighbor list builds = 0
+Dangerous builds = 0

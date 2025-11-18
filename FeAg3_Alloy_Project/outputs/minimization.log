@@ -1,0 +1,106 @@
+LAMMPS (7 Feb 2024 - Update 1)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+# FeAg3 Energy Minimization - Final
+
+# Initialize
+units metal
+dimension 3
+boundary p p p
+atom_style atomic
+
+# Read structure
+read_data "/mnt/c/Users/danie/feag3_Mechanical_Properties/inputs/feag3_structure_corrected.lmp"
+Reading data file ...
+  triclinic box = (0 0 0) to (5.7770462 5.7770462 4.639666) with tilt (0 0 0)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  8 atoms
+  read_data CPU = 0.049 seconds
+
+# Potential setup
+pair_style lj/cut 5.0
+pair_coeff 1 1 0.1 2.5    # Fe-Fe
+pair_coeff 2 2 0.15 2.8   # Ag-Ag
+pair_coeff 1 2 0.125 2.65 # Fe-Ag
+
+# Neighbor settings
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+# Compute stress
+compute peratom all stress/atom NULL
+compute p all reduce sum c_peratom[1] c_peratom[2] c_peratom[3]
+
+# Energy minimization
+thermo 10
+thermo_style custom step pe etotal press vol lx ly lz
+min_style cg
+minimize 1.0e-10 1.0e-10 1000 10000
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 7
+  ghost atom cutoff = 7
+  binsize = 3.5, bins = 2 2 2
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton/tri
+      stencil: half/bin/3d/tri
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 4.835 | 4.835 | 4.835 Mbytes
+   Step         PotEng         TotEng         Press          Volume           Lx             Ly             Lz      
+         0   4.428329e+09   4.428329e+09   1.8328247e+14  154.84543      5.7770462      5.7770462      4.639666     
+        10   6909.9289      6909.9289      2.912167e+08   154.84543      5.7770462      5.7770462      4.639666     
+        20  -5.7550909     -5.7550909      118915.78      154.84543      5.7770462      5.7770462      4.639666     
+        23  -6.9567902     -6.9567902      50395.137      154.84543      5.7770462      5.7770462      4.639666     
+Loop time of 0.00228718 on 1 procs for 23 steps with 8 atoms
+
+53.4% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+      4428329043.16793  -6.95679017390865  -6.95679017390865
+  Force two-norm initial, final = 5.2156345e+10 0.95225769
+  Force max component initial, final = 1.7547599e+10 0.33516448
+  Final line search alpha, max atom move = 8.89185e-09 2.9802322e-09
+  Iterations, force evaluations = 23 79
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00023293 | 0.00023293 | 0.00023293 |   0.0 | 10.18
+Neigh   | 9.3533e-05 | 9.3533e-05 | 9.3533e-05 |   0.0 |  4.09
+Comm    | 0.0016431  | 0.0016431  | 0.0016431  |   0.0 | 71.84
+Output  | 5.7996e-05 | 5.7996e-05 | 5.7996e-05 |   0.0 |  2.54
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.0002596  |            |       | 11.35
+
+Nlocal:              8 ave           8 max           8 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:            384 ave         384 max         384 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:            286 ave         286 max         286 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 286
+Ave neighs/atom = 35.75
+Neighbor list builds = 2
+Dangerous builds = 0
+
+# Write minimized structure
+write_data "/mnt/c/Users/danie/feag3_Mechanical_Properties/outputs/feag3_minimized.lmp"
+System init for write_data ...
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+WARNING: Not all mixed pair coeffs generated from mixing. Use write_data with 'pair ij' option to store all pair coeffs. (src/write_data.cpp:331)
+
+# Output final energy
+variable final_pe equal pe
+print "Final Potential Energy: ${final_pe} eV"
+Final Potential Energy: -6.95679017390865 eV
+print "Minimization completed successfully!"
+Minimization completed successfully!
+Total wall time: 0:00:00

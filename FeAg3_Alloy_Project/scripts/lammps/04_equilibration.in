@@ -1,0 +1,38 @@
+# FeAg3 Thermal Equilibration - NPT Ensemble
+
+# Initialize
+units metal
+dimension 3
+boundary p p p
+atom_style atomic
+
+# Read minimized structure
+read_data "/mnt/c/Users/danie/feag3_Mechanical_Properties/outputs/feag3_minimized.lmp"
+
+# Potential setup
+pair_style lj/cut 5.0
+pair_coeff 1 1 0.1 2.5    # Fe-Fe
+pair_coeff 2 2 0.15 2.8   # Ag-Ag  
+pair_coeff 1 2 0.125 2.65 # Fe-Ag
+
+# Neighbor settings
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+# Temperature and pressure setup
+velocity all create 300.0 12345 dist gaussian
+timestep 0.001
+
+# Thermo settings
+thermo 100
+thermo_style custom step temp press vol density pe ke etotal
+
+# NPT equilibration - constant temperature and pressure
+fix npt all npt temp 300 300 0.1 iso 0.0 0.0 1.0
+run 5000
+unfix npt
+
+# Write equilibrated structure
+write_data "/mnt/c/Users/danie/feag3_Mechanical_Properties/outputs/feag3_equilibrated.lmp"
+
+print "Equilibration completed at 300K!"
