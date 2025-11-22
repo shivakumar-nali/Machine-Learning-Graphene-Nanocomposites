@@ -58,13 +58,13 @@ FeAg3_Alloy_Project/
 │── README.md               
 
 5. How to Run the Project
-Run ML Training
+Run ML Training ->
 python 02_ML_Model/prepare_ml_data.py
 
-Run Tensile Simulation (LAMMPS)
+Run Tensile Simulation (LAMMPS) ->
 lammps < 03_MD_Simulation/inputs/05_tensile_test.in
 
-Plot Stress–Strain Graphs
+Plot Stress–Strain Graphs ->
 python 04_Results/visualization_scripts/plot_stress_strain.py
 
 6. Key Outcomes
