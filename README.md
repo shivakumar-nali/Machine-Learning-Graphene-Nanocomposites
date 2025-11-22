@@ -42,20 +42,20 @@ Gradient Boosting Regressor	Good, needs fine-tuning
 Support Vector Machine (SVM)	Moderate performance
 4. Folder Structure
 FeAg3_Alloy_Project/
-│── 01_References/           # Research references / citation info
-│── 02_ML_Model/             # ML model training scripts and saved models
-│── 03_MD_Simulation/        # MD simulation files
-│   ├── data/                # Processed stress–strain dataset
-│   ├── inputs/              # LAMMPS simulation input files
-│   └── potentials/          # Atomic potential files (.lmp)
-│── 04_Results/              # Graphs and postprocessing scripts
-│   ├── graphs/              # Final stress–strain curves and CSVs
-│   └── visualization_scripts/  # Python scripts to plot and analyze
-│── 05_Report/               # Project documentation
+│── 01_References/           
+│── 02_ML_Model/             
+│── 03_MD_Simulation/       
+│   ├── data/               
+│   ├── inputs/              
+│   └── potentials/         
+│── 04_Results/              
+│   ├── graphs/              
+│   └── visualization_scripts/  
+│── 05_Report/              
 │   ├── mlmi_report.pdf
 │   └── mlmi_report.docx
-│── MLMI.pptx                # Project presentation
-│── README.md                # Project description
+│── MLMI.pptx               
+│── README.md               
 
 5. How to Run the Project
 Run ML Training
